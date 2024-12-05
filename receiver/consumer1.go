@@ -52,11 +52,12 @@ func main() {
 	msgs, err := ch.Consume(
 		queue.Name, // queue name
 		"",         // consumer name
-		false,      // auto-ack (set to false so we can ack manually)
-		false,      // exclusive (this consumer is not exclusive)
-		false,      // no-local
-		false,      // no-wait
-		nil,        // arguments
+		//true,
+		false, // auto-ack (set to false so we can ack manually)
+		false, // exclusive (this consumer is not exclusive)
+		false, // no-local
+		false, // no-wait
+		nil,   // arguments
 	)
 	if err != nil {
 		log.Fatalf("Failed to register a consumer: %s", err)
