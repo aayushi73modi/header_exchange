@@ -7,7 +7,6 @@ import (
 )
 
 func main() {
-	// Connect to RabbitMQ
 	conn, err := amqp.Dial("amqp://guest:guest@localhost:5673/")
 	if err != nil {
 		log.Fatalf("Failed to connect to RabbitMQ: %s", err)
@@ -32,6 +31,48 @@ func main() {
 	)
 	if err != nil {
 		log.Fatalf("Failed to declare exchange: %s", err)
+	}
+
+	// Declare the shared queue
+	queue, err := ch.QueueDeclare(
+		"queue101", // queue name
+		true,       // durable
+		false,      // auto-deleted
+		false,      // exclusive
+		false,      // no-wait
+		nil,        // arguments
+	)
+	if err != nil {
+		log.Fatalf("Failed to declare queue: %s", err)
+	}
+
+	// Bind the queue to the header exchange for "type=1"
+	err = ch.QueueBind(
+		queue.Name,        // queue name
+		"",                // routing key (ignored for headers)
+		"header_exchange", // exchange
+		false,             // no-wait
+		amqp.Table{
+			"x-match": "all", // Match all headers
+			"type":    "1",   // Only match "type=1"
+		},
+	)
+	if err != nil {
+		log.Fatalf("Failed to bind queue to exchange: %s", err)
+	}
+	// Bind the queue to the header exchange for "type=2"
+	err = ch.QueueBind(
+		queue.Name,        // queue name
+		"",                // routing key (ignored for headers)
+		"header_exchange", // exchange
+		false,             // no-wait
+		amqp.Table{
+			"x-match": "all", // Match all headers
+			"type":    "2",   // Only match "type=2"
+		},
+	)
+	if err != nil {
+		log.Fatalf("Failed to bind queue to exchange: %s", err)
 	}
 
 	// Publish "type 1" message
